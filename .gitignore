@@ -1,0 +1,29 @@
+# Ortam değişkenleri (GERÇEk credentials içerebilir — asla commit etme!)
+.env
+*.env
+
+# Yerel config (gerçek folder ID içerebilir)
+shared_config.json
+
+# Google Service Account JSON anahtarı
+*.json
+!package.json
+
+# Export edilen Excel çıktıları
+*.xlsx
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace

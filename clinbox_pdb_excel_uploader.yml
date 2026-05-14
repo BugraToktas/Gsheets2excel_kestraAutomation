@@ -1,0 +1,153 @@
+id: clinbox_pdb_excel_uploader
+namespace: collabry
+
+variables:
+  file_name_api: "{{ now() | date('yyyyMMdd') }}_pdb_api-cllb.xlsx"
+  file_name_crm: "{{ now() | date('yyyyMMdd') }}_pdb_crm-cllb.xlsx"
+  file_name_datalog: "{{ now() | date('yyyyMMdd') }}_pdb_datalog-cllb.xlsx"
+  file_name_decision: "{{ now() | date('yyyyMMdd') }}_pdb_decision-cllb.xlsx"
+  file_name_marketing: "{{ now() | date('yyyyMMdd') }}_pdb_marketing-cllb.xlsx"
+  file_name_metric: "{{ now() | date('yyyyMMdd') }}_pdb_metric-cllb.xlsx"
+  file_name_organization: "{{ now() | date('yyyyMMdd') }}_pdb_organization-cllb.xlsx"
+  file_name_process: "{{ now() | date('yyyyMMdd') }}_pdb_process-cllb.xlsx"
+  file_name_quality: "{{ now() | date('yyyyMMdd') }}_pdb_quality-cllb.xlsx"
+  file_name_training: "{{ now() | date('yyyyMMdd') }}_pdb_training-cllb.xlsx"
+  file_name_checklist: "{{ now() | date('yyyyMMdd') }}_pdb-checklist-cllb.xlsx"
+  file_name_content: "{{ now() | date('yyyyMMdd') }}_pdb-content-cllb.xlsx"
+  file_name_resource: "{{ now() | date('yyyyMMdd') }}_pdb-resource-cllb.xlsx"
+  file_name_rjb_wprd: "{{ now() | date('yyyyMMdd') }}_pdb-rjb-wprd.xlsx"
+
+tasks:
+  - id: transform_gsheets
+    type: io.kestra.plugin.scripts.shell.Commands
+    namespaceFiles:
+      enabled: true
+    taskRunner:
+      type: io.kestra.plugin.scripts.runner.docker.Docker
+    outputFiles:
+      - "{{ render(vars.file_name_api) }}"
+      - "{{ render(vars.file_name_crm) }}"
+      - "{{ render(vars.file_name_datalog) }}"
+      - "{{ render(vars.file_name_decision) }}"
+      - "{{ render(vars.file_name_marketing) }}"
+      - "{{ render(vars.file_name_metric) }}"
+      - "{{ render(vars.file_name_organization) }}"
+      - "{{ render(vars.file_name_process) }}"
+      - "{{ render(vars.file_name_quality) }}"
+      - "{{ render(vars.file_name_training) }}"
+      - "{{ render(vars.file_name_checklist) }}"
+      - "{{ render(vars.file_name_content) }}"
+      - "{{ render(vars.file_name_resource) }}"
+      - "{{ render(vars.file_name_rjb_wprd) }}"
+    containerImage: python:slim
+    beforeCommands:
+      - pip install --root-user-action=ignore --upgrade pip
+      - pip install google-auth google-api-python-client pandas openpyxl
+    env:
+      # SA: Service Account
+      SA_PRIVATE_KEY: "{{ secret('GOOGLE_SERVICE_ACCOUNT_PDB_PRIVATE_KEY') }}"  # contains \n chars!
+      SA_CLIENT_EMAIL: "{{ secret('GOOGLE_SERVICE_ACCOUNT_PDB_CLIENT_EMAIL') }}"
+      SA_PRIVATE_KEY_ID: "{{ secret('GOOGLE_SERVICE_ACCOUNT_PDB_PRIVATE_KEY_ID') }}"
+      SA_CLIENT_ID: "{{ secret('GOOGLE_SERVICE_ACCOUNT_PDB_CLIENT_ID') }}"
+    commands:
+      - python clinbox_gsheet_transformer.py
+
+  - id: upload_api
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_api) ] }}"
+    key: "{{ render(vars.file_name_api) }}"
+
+  - id: upload_crm
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_crm) ] }}"
+    key: "{{ render(vars.file_name_crm) }}"
+
+  - id: upload_datalog
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_datalog) ] }}"
+    key: "{{ render(vars.file_name_datalog) }}"
+
+  - id: upload_decision
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_decision) ] }}"
+    key: "{{ render(vars.file_name_decision) }}"
+
+  - id: upload_marketing
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_marketing) ] }}"
+    key: "{{ render(vars.file_name_marketing) }}"
+
+  - id: upload_metric
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_metric) ] }}"
+    key: "{{ render(vars.file_name_metric) }}"
+
+  - id: upload_organization
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_organization) ] }}"
+    key: "{{ render(vars.file_name_organization) }}"
+
+  - id: upload_process
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_process) ] }}"
+    key: "{{ render(vars.file_name_process) }}"
+
+  - id: upload_quality
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_quality) ] }}"
+    key: "{{ render(vars.file_name_quality) }}"
+
+  - id: upload_training
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_training) ] }}"
+    key: "{{ render(vars.file_name_training) }}"
+
+  - id: upload_checklist
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_checklist) ] }}"
+    key: "{{ render(vars.file_name_checklist) }}"
+
+  - id: upload_content
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_content) ] }}"
+    key: "{{ render(vars.file_name_content) }}"
+
+  - id: upload_resource
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_resource) ] }}"
+    key: "{{ render(vars.file_name_resource) }}"
+
+  - id: upload_rjb_wprd
+    type: io.kestra.plugin.aws.s3.Upload
+    bucket: pdb-excel-backup
+    from: "{{ outputs.transform_gsheets.outputFiles[ render(vars.file_name_rjb_wprd) ] }}"
+    key: "{{ render(vars.file_name_rjb_wprd) }}"
+
+pluginDefaults:
+  - type: io.kestra.plugin.aws.s3.Upload
+    values:
+      contentType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      endpointOverride: "{{ secret('CLOUDFLARE_R2_ENDPOINT') }}"
+      region: auto
+      accessKeyId: "{{ secret('CLOUDFLARE_R2_ACCESS_KEY') }}"
+      secretKeyId: "{{ secret('CLOUDFLARE_R2_SECRET_KEY') }}"
+
+triggers:
+  - id: daily
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "@daily"
+    recoverMissedSchedules: NONE
+    disabled: false
