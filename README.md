@@ -1,4 +1,4 @@
-# 📊 Clinbox GSheets → Excel Pipeline
+# 📊 GSheets → Excel Pipeline
 
 > **Google Sheets'teki paylaşılan dosyaları otomatik olarak Excel'e dönüştürür ve Cloudflare R2'ye yükler.**  
 > Kestra workflow orchestration engine üzerinde günlük çalışacak şekilde zamanlanmış, Docker tabanlı, tamamen otomasyonlu bir veri pipeline'ıdır.
